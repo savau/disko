@@ -6,7 +6,11 @@
   #inputs.nixpkgs.url = "nixpkgs";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-  outputs = { self, nixpkgs, ... }:
+  # use fido2luks fork for Nitrokey 3A NFC support
+  # see also: https://github.com/shimunn/fido2luks/issues/51
+  inputs.fido2luks.url = "github:savau/fido2luks";
+
+  outputs = { self, nixpkgs, fido2luks, ... }:
     let
       supportedSystems = [
         "x86_64-linux"
@@ -24,7 +28,12 @@
       };
       packages = forAllSystems (system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = import nixpkgs { inherit system overlays; };
+          overlays = [
+            (final: prev: {
+              fido2luks = fido2luks.packages.${system}.fido2luks;
+            })
+          ];
         in
         {
           disko = pkgs.callPackage ./package.nix { };

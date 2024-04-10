@@ -1,4 +1,4 @@
-{ stdenvNoCC, makeWrapper, lib, path, nix, coreutils }:
+{ stdenvNoCC, makeWrapper, lib, path, nix, coreutils, fido2luks }:
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   name = "disko";
@@ -14,7 +14,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       sed -e "s|libexec_dir=\".*\"|libexec_dir=\"$out/share/disko\"|" "$i" > "$out/bin/$i"
       chmod 755 "$out/bin/$i"
       wrapProgram "$out/bin/$i" \
-        --prefix PATH : ${lib.makeBinPath [ nix coreutils ]} \
+        --prefix PATH : ${lib.makeBinPath [ nix coreutils fido2luks ]} \
         --prefix NIX_PATH : "nixpkgs=${path}"
     done
   '';
